@@ -1,0 +1,15 @@
+/**
+ *  The MIT License (MIT)
+ *  Copyright (c) 2024 by @xyzendev - Adriansyah
+ *  © 2024 by @xyzendev - Adriansyah | MIT License
+ */
+
+import {
+    Crypto,
+    ff,
+    fs,
+    path,
+    webp
+} from "@xyzendev/modules/core/main.modules.js"
+
+import { Crypto, ff, fs, path, webp } from "@xyzendev/modules/core/main.modules.js"; const temp = "win32" === process.platform ? process.env.TEMP : "./src/temp"; export async function imageToWebp(e) { const t = path.join(temp, `${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.${e?.ext || "png"}`), s = path.join(temp, `${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`); fs.writeFileSync(t, e.data); try { await new Promise(((e, i) => { ff(t).on("error", i).on("end", (() => e(!0))).addOutputOptions(["-vcodec", "libwebp", "-vf", "scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=000000 [p]; [b][p] paletteuse"]).toFormat("webp").saveToFile(s) })), fs.promises.unlink(t); const e = fs.readFileSync(s); return fs.promises.unlink(s), e } catch (e) { throw fs.existsSync(t) && fs.promises.unlink(t), fs.existsSync(s) && fs.promises.unlink(s), e } } export async function videoToWebp(e) { const t = path.join(temp, `${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.${e?.ext || "mp4"}`), s = path.join(temp, `${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`); fs.writeFileSync(t, e.data); try { await new Promise(((e, i) => { ff(t).on("error", i).on("end", (() => e(!0))).addOutputOptions(["-vcodec", "libwebp", "-vf", "scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=000000 [p]; [b][p] paletteuse", "-loop", "0", "-ss", "00:00:00", "-t", "00:00:05", "-preset", "default", "-an", "-vsync", "0"]).toFormat("webp").saveToFile(s) })), fs.promises.unlink(t); const e = fs.readFileSync(s); return fs.promises.unlink(s), e } catch (e) { throw fs.existsSync(t) && fs.promises.unlink(t), fs.existsSync(s) && fs.promises.unlink(s), e } } export async function writeExif(e, t) { let s = /webp/.test(e.mimetype) ? e.data : /image/.test(e.mimetype) ? await imageToWebp(e) : /video/.test(e.mimetype) ? await videoToWebp(e) : ""; if (t && 0 !== Object?.keys(t).length) { const e = new webp.Image, i = { "sticker-pack-id": t?.packId || `xyzen-${Date.now()}`, "sticker-pack-name": t?.packName || "", "sticker-pack-publisher": t?.packPublish || "", "android-app-store-link": t?.androidApp || "https://play.google.com/store/apps/details?id=com.bitsmedia.android.muslimpro", "ios-app-store-link": t?.iOSApp || "https://apps.apple.com/id/app/muslim-pro-al-quran-adzan/id388389451?|=id", emojis: t?.emojis || ["😋", "😎", "🤣", "😂", "😁"], "is-avatar-sticker": t?.isAvatar || 0 }, a = Buffer.from([73, 73, 42, 0, 8, 0, 0, 0, 1, 0, 65, 87, 7, 0, 0, 0, 0, 0, 22, 0, 0, 0]), o = Buffer.from(JSON.stringify(i), "utf-8"), n = Buffer.concat([a, o]); return n.writeUIntLE(o.length, 14, 4), await e.load(s), e.exif = n, await e.save(null) } }
