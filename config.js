@@ -6,7 +6,7 @@
 
 export default {
     self: false,
-    pairing: false,
+    usePairing: false,
     write_store: false,
     owners: ["6289513081052"],
     bot: "62xxxxxxxx"
